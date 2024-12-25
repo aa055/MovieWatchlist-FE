@@ -4,6 +4,7 @@ const movieTitle = url.searchParams.get("title")
 
 const APILINK = `${import.meta.env.VITE_MOVIEWATCHLIST_BE_API_URL}/api/v1/reviews/`;
 
+
 const main = document.getElementById("section");
 const title = document.getElementById("title");
 
@@ -22,7 +23,7 @@ div_new.innerHTML = `
             <input type="text" id="new_user" value="">
           </p>
           <p>
-            <a href="#" id="saveReview">💾</a>
+            <a href="#" id="saveReview" onclick="saveReview('new_review', 'new_user')">💾</a>
           </p>
       </div>
     </div>
@@ -44,10 +45,7 @@ function returnReviews(url){
               <div class="card" id="${review._id}">
                 <p><strong>Review: </strong>${review.review}</p>
                 <p><strong>User: </strong>${review.user}</p>
-                <p>
-                  <a href="#" class="editReview" data-id="${review._id}" data-review="${review.review}" data-user="${review.user}">✏️</a>
-                  <a href="#" class="deleteReview" data-id="${review._id}">🗑</a>
-                </p>
+                <p><a href="#"onclick="editReview('${review._id}','${review.review}', '${review.user}')">✏️</a> <a href="#" onclick="deleteReview('${review._id}')">🗑</a></p>
               </div>
             </div>
           </div>
@@ -59,6 +57,7 @@ function returnReviews(url){
 }
 
 function editReview(id, review, user) {
+
   const element = document.getElementById(id);
   const reviewInputId = "review" + id
   const userInputId = "user" + id
@@ -70,9 +69,9 @@ function editReview(id, review, user) {
               <p><strong>User: </strong>
                 <input type="text" id="${userInputId}" value="${user}">
               </p>
-              <p>
-                <a href="#" class="saveEdit" data-id="${id}" data-review="${reviewInputId}" data-user="${userInputId}">💾</a>
+              <p><a href="#" onclick="saveReview('${reviewInputId}', '${userInputId}', '${id}',)">💾</a>
               </p>
+  
   `
 }
 
@@ -120,28 +119,11 @@ function deleteReview(id) {
     });    
 }
 
+window.saveReview = saveReview;
+window.editReview = editReview;
+window.deleteReview = deleteReview;
+
 // Event listeners
-main.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'saveReview') {
-    saveReview('new_review', 'new_user');
-  }
-
-  if (e.target && e.target.classList.contains('editReview')) {
-    const id = e.target.dataset.id;
-    const review = e.target.dataset.review;
-    const user = e.target.dataset.user;
-    editReview(id, review, user);
-  }
-
-  if (e.target && e.target.classList.contains('saveEdit')) {
-    const id = e.target.dataset.id;
-    const reviewInputId = e.target.dataset.review;
-    const userInputId = e.target.dataset.user;
-    saveReview(reviewInputId, userInputId, id);
-  }
-
-  if (e.target && e.target.classList.contains('deleteReview')) {
-    const id = e.target.dataset.id;
-    deleteReview(id);
-  }
-});
+// document.querySelector('#saveReview').addEventListener('click', () => {
+//   saveReview('new_review', 'new_user');
+// });
