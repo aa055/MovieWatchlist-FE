@@ -1,6 +1,7 @@
 const APILINK =`https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=${import.meta.env.VITE_MOVIEDB_API_KEY}&page=1`;
 const IMG_PATH = "https://image.tmdb.org/t/p/w1280";
 const SEARCHAPI = `https://api.themoviedb.org/3/search/movie?&api_key=${import.meta.env.VITE_MOVIEDB_API_KEY}&query=`;
+const BE_API_URL = `${import.meta.env.VITE_MOVIEWATCHLIST_BE_API_URL}`;
 
 const main = document.getElementById("section");
 const form = document.getElementById("form");
@@ -11,7 +12,7 @@ function returnMovies(url) {
   fetch(url)
     .then((res) => res.json())
     .then(function (data) {
-      console.log(data.results);
+      console.log("MovieDB results: ",data.results);
       data.results.forEach((element) => {
         const div_card = document.createElement("div");
         div_card.setAttribute("class", "card");
@@ -31,14 +32,17 @@ function returnMovies(url) {
 
         const center = document.createElement("center");
 
+        let encodedPosterPath = encodeURIComponent(element.poster_path);
+
         title.innerHTML = `
           ${element.title}
           <br>
           <a href="movie.html?id=${element.id}&title=${element.title}">reviews</a>
           <br>
-          <a href="#">Add to watchlist</a>
+          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterpath="${encodedPosterPath}">Add to watchlist</a>
         `;
         image.src = IMG_PATH + element.poster_path;
+        console.log("posterPath: ",element.poster_path, encodedPosterPath)
 
         center.appendChild(image);
         div_card.appendChild(center);
@@ -62,3 +66,35 @@ form.addEventListener("submit", (e) => {
     search.value = "";
   }
 });
+
+////// Event Listeners ////////
+
+main.addEventListener('click', (e) => {
+  if (e.target && e.target.classList.contains('add-to-watchlist')) {
+    const movieId = e.target.dataset.id;
+    const movieTitle = e.target.dataset.title;
+    const posterPath = decodeURIComponent(e.target.dataset.posterpath);
+    console.log("posterPath: ",posterPath)
+    addToWatchlist(movieId, movieTitle, posterPath);
+  }
+});
+
+/////// Watchllist Functions //////////
+
+function addToWatchlist(movieId, movieTitle, posterPath) {
+  fetch(BE_API_URL + `/api/v1/watchlist/add`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ movieId: movieId, movieTitle: movieTitle, posterPath: posterPath })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(`'${movieTitle}' added to watchlist!`);
+  })
+  .catch(err => {
+    console.error('Error adding to watchlist:', err);
+  });
+}
