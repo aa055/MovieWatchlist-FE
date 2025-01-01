@@ -39,10 +39,9 @@ function returnMovies(url) {
           <br>
           <a href="movie.html?id=${element.id}&title=${element.title}">reviews</a>
           <br>
-          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterpath="${encodedPosterPath}">Add to watchlist</a>
+          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterPath="${encodedPosterPath}" data-inwatchlist="false">Add to watchlist</a>
         `;
         image.src = IMG_PATH + element.poster_path;
-        console.log("posterPath: ",element.poster_path, encodedPosterPath)
 
         center.appendChild(image);
         div_card.appendChild(center);
@@ -74,14 +73,19 @@ main.addEventListener('click', (e) => {
     const movieId = e.target.dataset.id;
     const movieTitle = e.target.dataset.title;
     const posterPath = decodeURIComponent(e.target.dataset.posterpath);
-    console.log("posterPath: ",posterPath)
-    addToWatchlist(movieId, movieTitle, posterPath);
+    const inWatchlist = e.target.dataset.inwatchlist === 'true';
+
+    if (!inWatchlist) {
+      addToWatchlist(movieId, movieTitle, posterPath, e.target);
+    } else {
+      removeFromWatchlist(movieId, movieTitle, e.target);
+    }
   }
 });
 
-/////// Watchllist Functions //////////
+/////// Watchlist Functions //////////
 
-function addToWatchlist(movieId, movieTitle, posterPath) {
+function addToWatchlist(movieId, movieTitle, posterPath, element) {
   fetch(BE_API_URL + `/api/v1/watchlist/add`, {
     method: 'POST',
     headers: {
@@ -93,8 +97,33 @@ function addToWatchlist(movieId, movieTitle, posterPath) {
   .then(res => res.json())
   .then(data => {
     alert(`'${movieTitle}' added to watchlist!`);
+    element.innerText = 'Remove from watchlist';
+    element.dataset.inwatchlist = 'true';
   })
   .catch(err => {
     console.error('Error adding to watchlist:', err);
   });
 }
+
+function removeFromWatchlist(movieId, movieTitle, element) {
+  fetch(`${BE_API_URL}/api/v1/watchlist/${movieId}`, {
+    method: 'DELETE',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(`'${movieTitle}' removed from watchlist!`);
+    element.innerText = 'Add to watchlist';
+    element.dataset.inwatchlist = 'false';
+  })
+  .catch(err => {
+    console.error('Error removing from watchlist:', err);
+  });
+}
+
+
+
+
