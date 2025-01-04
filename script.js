@@ -83,6 +83,7 @@ main.addEventListener('click', (e) => {
   }
 });
 
+
 /////// Watchlist Functions //////////
 
 function addToWatchlist(movieId, movieTitle, posterPath, element) {
