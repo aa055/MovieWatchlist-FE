@@ -7,12 +7,26 @@ const main = document.getElementById("section");
 const form = document.getElementById("form");
 const search = document.getElementById("query");
 
-returnMovies(APILINK);
+let watchlistIds = new Set();
+
+// Preload watchlist movie IDs // Load watchlist movie IDs on page load
+async function preloadWatchlist() {
+fetch(`${BE_API_URL}/api/v1/watchlist`)
+  .then((res) => res.json())
+  .then((data) => {
+    watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
+    returnMovies(APILINK);
+  })
+  .catch((err) => console.error('Error fetching watchlist:', err));
+}
+
+preloadWatchlist()
+
 function returnMovies(url) {
   fetch(url)
     .then((res) => res.json())
     .then(function (data) {
-      console.log("MovieDB results: ",data.results);
+      console.log("MovieDB results: ", data.results);
       data.results.forEach((element) => {
         const div_card = document.createElement("div");
         div_card.setAttribute("class", "card");
@@ -33,13 +47,16 @@ function returnMovies(url) {
         const center = document.createElement("center");
 
         let encodedPosterPath = encodeURIComponent(element.poster_path);
+        let inWatchlist = watchlistIds.has(element.id.toString());
 
         title.innerHTML = `
           ${element.title}
           <br>
           <a href="movie.html?id=${element.id}&title=${element.title}">reviews</a>
           <br>
-          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterPath="${encodedPosterPath}" data-inwatchlist="false">Add to watchlist</a>
+          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterpath="${encodedPosterPath}" data-inwatchlist="${inWatchlist}">
+            ${inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+          </a>
         `;
         image.src = IMG_PATH + element.poster_path;
 
@@ -83,7 +100,6 @@ main.addEventListener('click', (e) => {
   }
 });
 
-
 /////// Watchlist Functions //////////
 
 function addToWatchlist(movieId, movieTitle, posterPath, element) {
@@ -100,6 +116,7 @@ function addToWatchlist(movieId, movieTitle, posterPath, element) {
     alert(`'${movieTitle}' added to watchlist!`);
     element.innerText = 'Remove from watchlist';
     element.dataset.inwatchlist = 'true';
+    watchlistIds.add(movieId);
   })
   .catch(err => {
     console.error('Error adding to watchlist:', err);
@@ -119,12 +136,9 @@ function removeFromWatchlist(movieId, movieTitle, element) {
     alert(`'${movieTitle}' removed from watchlist!`);
     element.innerText = 'Add to watchlist';
     element.dataset.inwatchlist = 'false';
+    watchlistIds.delete(movieId);
   })
   .catch(err => {
     console.error('Error removing from watchlist:', err);
   });
 }
-
-
-
-
