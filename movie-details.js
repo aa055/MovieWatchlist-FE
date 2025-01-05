@@ -28,10 +28,11 @@ async function getMovieDetails(movieId) {
             <div style="display:block; padding:20px;">
                 <p><strong>Release Date:</strong> ${movieData.release_date}</p>
                 <p><strong>Original Language:</strong> ${movieData.original_language.toUpperCase()}</p>
+                <p><strong>Country of Origin:</strong> ${originCountries}</p>
                 <p><strong>Genres:</strong> ${genres}</p>
-                <p><strong>Budget:</strong> $${movieData.budget.toLocaleString()}</p>
-                <p><strong>Revenue:</strong> $${movieData.revenue.toLocaleString()}</p>
-                <p><strong>Origin:</strong> ${originCountries}</p>
+                <p><strong>Budget:</strong> ${movieData.budget ? "$"+movieData.budget.toLocaleString() : "N/A"}</p>
+                <p><strong>Revenue:</strong> ${movieData.revenue ? "$"+movieData.revenue.toLocaleString() : "N/A"}</p>
+                <a href="movie.html?id=${movieId}&title=${movieData.title}">Reviews</a>
             </div>
         </div>
         <p><strong>Overview:</strong> ${movieData.overview}</p>
