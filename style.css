@@ -64,3 +64,7 @@ input {
   text-align: center;
   background-color: #151f30;
 }
+
+.movie-container {
+  padding:20px;
+}

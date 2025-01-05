@@ -11,13 +11,13 @@ let watchlistIds = new Set();
 
 // Preload watchlist movie IDs // Load watchlist movie IDs on page load
 async function preloadWatchlist() {
-fetch(`${BE_API_URL}/api/v1/watchlist`)
-  .then((res) => res.json())
-  .then((data) => {
-    watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
-    returnMovies(APILINK);
-  })
-  .catch((err) => console.error('Error fetching watchlist:', err));
+  fetch(`${BE_API_URL}/api/v1/watchlist`)
+    .then((res) => res.json())
+    .then((data) => {
+      watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
+      returnMovies(APILINK);
+    })
+    .catch((err) => console.error('Error fetching watchlist:', err));
 }
 
 preloadWatchlist()
@@ -37,9 +37,14 @@ function returnMovies(url) {
         const div_column = document.createElement("div");
         div_column.setAttribute("class", "column");
 
+        const image_link = document.createElement("a");
+        // image_link.setAttribute("class", "movie-link");
+        image_link.setAttribute("href", `movie-details.html?id=${element.id}`);
+
         const image = document.createElement("img");
         image.setAttribute("class", "thumbnail");
         image.setAttribute("id", "image");
+        image.src = IMG_PATH + element.poster_path;
 
         const title = document.createElement("h3");
         title.setAttribute("id", "title");
@@ -50,17 +55,23 @@ function returnMovies(url) {
         let inWatchlist = watchlistIds.has(element.id.toString());
 
         title.innerHTML = `
-          ${element.title}
+          <a href="movie-details.html?id=${element.id}" class="movie-link">${element.title}</a>
           <br>
           <a href="movie.html?id=${element.id}&title=${element.title}">reviews</a>
           <br>
-          <a href="#" class="add-to-watchlist" data-id="${element.id}" data-title="${element.title}" data-posterpath="${encodedPosterPath}" data-inwatchlist="${inWatchlist}">
-            ${inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+          <a href="#" class="add-to-watchlist" 
+            data-id="${element.id}" 
+            data-title="${element.title}" 
+            data-posterpath="${encodedPosterPath}" 
+            data-inwatchlist="${inWatchlist}"
+            >${inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
           </a>
         `;
-        image.src = IMG_PATH + element.poster_path;
+        
+        console.log(element.id, inWatchlist);
 
-        center.appendChild(image);
+        image_link.appendChild(image)
+        center.appendChild(image_link);
         div_card.appendChild(center);
         div_card.appendChild(title);
         div_column.appendChild(div_card);
