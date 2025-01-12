@@ -9,15 +9,32 @@ const search = document.getElementById("query");
 
 let watchlistIds = new Set();
 
-// Preload watchlist movie IDs // Load watchlist movie IDs on page load
-async function preloadWatchlist() {
-  fetch(`${BE_API_URL}/api/v1/watchlist`)
-    .then((res) => res.json())
-    .then((data) => {
-      watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
-      returnMovies(APILINK);
-    })
-    .catch((err) => console.error('Error fetching watchlist:', err));
+// // Preload watchlist movie IDs // Load watchlist movie IDs on page load
+// async function preloadWatchlist() {
+//   fetch(`${BE_API_URL}/api/v1/watchlist`)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
+//       returnMovies(APILINK);
+//     })
+//     .catch((err) => console.error('Error fetching watchlist:', err));
+// }
+
+async function preloadWatchlist(callback) {
+  try {
+    const response = await fetch(`${BE_API_URL}/api/v1/watchlist`);
+    const data = await response.json();
+
+    watchlistIds = new Set(data.map((movie) => movie.movieId.toString()));
+
+    if (callback && typeof callback === 'function') {
+      callback(); // Call the provided callback function
+    } else {
+      returnMovies(APILINK); // Default behavior
+    }
+  } catch (err) {
+    console.error('Error fetching watchlist:', err);
+  }
 }
 
 preloadWatchlist()
@@ -153,3 +170,91 @@ function removeFromWatchlist(movieId, movieTitle, element) {
     console.error('Error removing from watchlist:', err);
   });
 }
+
+/////////////////
+// To show the genre dropdown
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   const genreDropdown = document.getElementById("genreDropdown");
+
+//   fetch('/metadata/genres.json')
+//     .then((response) => response.json())
+//     .then((data) => {
+//       const genres = data.genres;
+      
+//       genres.forEach((genre) => {
+//         const genreLink = document.createElement("a");
+//         genreLink.href = `index.html?genre=${genre.id}`;
+//         genreLink.textContent = genre.name;
+//         genreDropdown.appendChild(genreLink);
+//       });
+//     })
+//     .catch((error) => {
+//       console.error("Error loading genres:", error);
+//     });
+// });
+
+
+// Fetch and populate genres in the dropdown
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const genreDropdown = document.getElementById('genreDropdown');
+  const section = document.getElementById('section'); // Main content section
+
+  // Fetch genres dynamically from the local JSON file
+  const response = await fetch('metadata/genres.json');
+  const genreData = await response.json();
+
+  const genres = genreData.genres;
+  let row = document.createElement('div');
+  row.classList.add('genre-row');
+
+  genres.forEach((genre, index) => {
+    const genreLink = document.createElement('a');
+    genreLink.href = '#';
+    genreLink.textContent = genre.name;
+    genreLink.setAttribute('data-id', genre.id);
+
+    genreLink.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent page reload
+      const genreId = genre.id;
+
+      // Clear the main content
+      main.innerHTML = '';
+
+      // Create or update the filter heading
+      let filterHeading = document.getElementById('filter-heading');
+      if (!filterHeading) {
+        filterHeading = document.createElement('h2');
+        filterHeading.id = 'filter-heading';
+        filterHeading.style.textAlign = 'center';
+        filterHeading.style.marginBottom = '20px';
+        section.prepend(filterHeading);
+      }
+      filterHeading.textContent = `Filtered by Genre: ${genre.name}`;
+
+      // Reload the watchlist and fetch movies with the selected genre
+      preloadWatchlist(() => {
+        const genreUrl = `${APILINK}&with_genres=${genreId}`;
+        returnMovies(genreUrl);
+      });
+    });
+
+    row.appendChild(genreLink);
+
+    // Create a new row after every 5 genres
+    if ((index + 1) % 5 === 0) {
+      genreDropdown.appendChild(row);
+      row = document.createElement('div');
+      row.classList.add('genre-row');
+    }
+  });
+
+  // Append any remaining genres in the last row
+  if (row.children.length > 0) {
+    genreDropdown.appendChild(row);
+  }
+});
+
+
+
