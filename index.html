@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 <head>
   <title>Movies Site</title>
@@ -9,7 +8,17 @@
 <body>
 
   <div class="topnav">
-    <a class="active" href="#">Movies Site</a>
+    <a class="active" href="index.html">Home</a>
+    
+    <div class="dropdown">
+      <a href="#" class="dropbtn">Genre</a>
+      <div class="dropdown-content" id="genreDropdown">
+        <!-- Dynamic genres will load here -->
+      </div>
+    </div>
+
+    <a href="watchlist.html">My Watchlist</a>
+    
     <div class="search-container">
       <form role="search" id="form">
         <input type="search" id="query" name="q" placeholder="Search..">
@@ -18,9 +27,8 @@
   </div>
 
   <div style="padding-left:16px">
-  
-  <section id="section">
-<!--     <div class="row">
+    <section id="section">
+      <!--     <div class="row">
       <div class="column">
         <div class="card">
           <center><img src="#" id="image" class="thumbnail"></center>
@@ -28,7 +36,8 @@
         </div>
       </div>
     </div> -->
-  </section>
+    </section>
+  </div>
   
 </body>
 <script type="module" src="script.js"></script>
