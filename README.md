@@ -169,14 +169,10 @@ The application preloads watchlist IDs on page load to show real-time watchlist 
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the ISC License.
 
 ## Acknowledgments
 
 - [The Movie Database (TMDb)](https://www.themoviedb.org/) for providing the movie data API
-- [Vite](https://vitejs.dev/) for the blazing fast build tool
 
 ## Contact
 
